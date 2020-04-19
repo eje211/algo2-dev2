@@ -1,47 +1,11 @@
-from collections import UserList
-
-import re
-from typing import Union, Tuple, List, Mapping, Optional
-from contextlib import suppress
+from typing import Union, Tuple, List, Optional, Generator, Iterable
+from collections import deque
 
 
-class Pin(UserList):
-    def append(self, item) -> None:
-        try:
-            if item > self.data[-1]:
-                raise ValueError("Cannot place a disc on a smaller disc.")
-        except IndexError:
-            pass
-        self.data.append(item)
+class AlgorithmsAssignment2:
 
-
-class Providence:
-    def __init__(self, n):
-        self.a, self.b, self.c, self.d = Pin(), Pin(), Pin(), Pin()
-        self.transfers = 0
-        for i in range(n, 0, -1):
-            self.a.append(i)
-
-    def step(self, from_pin: Pin, to_pin: Pin, pivot_pin: Pin) -> None:
-        a, b, c, d = self.a[:], self.b[:], self.c[:], self.d[:]
-        try:
-            pivot_pin.append(from_pin.pop())
-            to_pin.append(from_pin.pop())
-            to_pin.append(pivot_pin.pop())
-            self.transfers += 3
-        except ValueError:
-            self.a[:], self.b[:], self.c[:], self.d[:] = a, b, c, d
-            raise
-
-    def move(self, from_pin: Pin, to_pin: Pin) -> None:
-        to_pin.append(from_pin.pop())
-        self.transfers += 1
-
-
-class Alog2_2:
-
-    @staticmethod
-    def split(s:str, t:str) -> Union[bool, Tuple[List[str], List[str]]]:
+    @classmethod
+    def split(cls, s: str, t: str) -> Union[bool, Tuple[List[str], List[str]]]:
         """
         Determines if two strings come from the composition of two root strings.
         :param s: The first possible composition.
@@ -62,9 +26,7 @@ class Alog2_2:
                 print(f'index: {index}')
             char = s[index]
             solution.append(char)
-            verify = '.*'.join(solution)
-            verify = f'.*{verify}.*'
-            if not re.match(verify, ''.join(t)):
+            if not cls._contains(''.join(t), solution):
                 solution.pop()
             solutions[index] = solution
             print(solutions)
@@ -76,6 +38,16 @@ class Alog2_2:
         if c != a or c != b:
             return False
         return x, y
+
+    @staticmethod
+    def _contains(a: Iterable[str], b: Iterable[str]) -> bool:
+        b = deque(b)
+        for char in a:
+            if not b:
+                return True
+            if b[0] == char:
+                b.popleft()
+        return not b
 
     stages = 0
 
@@ -225,7 +197,7 @@ class Alog2_2:
         for row, _ in enumerate(table):
             table[row][0] = [(0, row)]
         for cell, _ in enumerate(table[0]):
-            table[0][cell] = [(0, 0)]
+            table[0][cell] = [(cell, 0)]
         for row, _ in enumerate(table):
             for cell, _ in enumerate(table[row]):
                 if X[cell] == Y[row] and row - 1 >= 0 and cell - 1 >= 0:
@@ -243,7 +215,6 @@ class Alog2_2:
                 for item, _ in enumerate(table[row][cell]):
                     table[row][cell] = ''.join(table[row][cell])
         return table
-
 
     @classmethod
     def count_inversions(cls, l: List[int]) -> int:
@@ -319,6 +290,7 @@ class GraphColoring:
                 self.colors[current_row] = 0
         if current_row == 0:
             self.num_colors += 1
+            self.colors = [0] * self.length
             self._colorize_graph(current_row)
         return False
 
@@ -327,6 +299,74 @@ class GraphColoring:
         return self.colors
 
 
+class melange:
+
+    best = []
+    the_a = ''
+    the_b = ''
+
+    def __new__(cls, a: str, b: str) -> List[str]:
+        cls.best = []
+        cls.the_a = a
+        cls.the_b = b
+        a, b = list(a), list(b)
+        cls._melange(a)
+        complement = cls._filter(cls.best, a)
+        return cls.best, complement
+
+    @classmethod
+    def _test(cls, a: List[str], short=False) -> bool:
+        if not cls._contains(cls.the_b, a):
+            return False
+        if short:
+            return True
+        l = cls._filter(a, cls.the_b)
+        return cls._contains(cls.the_a, l)
+
+    @classmethod
+    def _filter(cls, a, b):
+        a = deque(a)
+        l = []
+        for char in b:
+            if len(a) == 0 or char != a[0]:
+                l += char
+            else:
+                try:
+                    a.popleft()
+                except IndexError:
+                    pass
+        return l
+
+    @staticmethod
+    def _contains(a: Iterable[str], b: Iterable[str]) -> bool:
+        b = deque(b)
+        for char in a:
+            if not b:
+                return True
+            if b[0] == char:
+                b.popleft()
+        return not b
+
+    @classmethod
+    def _melange(cls, a: List[str], pre=None) -> Generator[Optional[List[str]], None, None]:
+        if cls.best:
+            return
+        print(f'{pre} :: {a}')
+        if pre is None:
+            pre = []
+        elif cls._test(pre):
+            print('\nNEW BEST\nNEW BEST\n')
+            cls.best = pre
+        if len(a) == 1:
+            candidate = pre + a
+            if cls._test(candidate):
+                cls.best = candidate
+                return
+        pre_test = cls._test(pre + a[0:1], True)
+        for start in range(1, len(a)):
+            if pre_test:
+                cls._melange(a[start:], pre + a[0:1])
+            cls._melange(a[start:], pre)
 
 
 
@@ -334,7 +374,6 @@ class GraphColoring:
 
 
 
-  
 
 
 
