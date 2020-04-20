@@ -52,12 +52,12 @@ class AlgorithmsAssignment2:
     stages = 0
 
     @classmethod
-    def select_slice(cls, a: int, b: int, l: List[int]) -> Tuple[int, int]:
+    def select_slice(cls, a: int, b: int, l: List[int]) -> int:
         start = len(l) // 2
         end = len(l) // 2
         start = cls.find_start(0, len(l) - 1, a, start, l)
         end = cls.find_end(0, len(l) - 1, b, end, l)
-        return start, end
+        return end - start + 1
 
     @classmethod
     def find_start(cls, low: int, high: int, a: int, start: int, l: List[int]) -> int:
@@ -305,11 +305,11 @@ class melange:
     the_a = ''
     the_b = ''
 
-    def __new__(cls, a: str, b: str) -> List[str]:
+    def __new__(cls, a: str, b: str) -> Tuple[List[str],List[str]]:
         cls.best = []
         cls.the_a = a
         cls.the_b = b
-        a, b = list(a), list(b)
+        a = list(a)
         cls._melange(a)
         complement = cls._filter(cls.best, a)
         return cls.best, complement
@@ -355,7 +355,6 @@ class melange:
         if pre is None:
             pre = []
         elif cls._test(pre):
-            print('\nNEW BEST\nNEW BEST\n')
             cls.best = pre
         if len(a) == 1:
             candidate = pre + a
